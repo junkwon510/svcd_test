@@ -3,4 +3,4 @@ numpy
 streamlit
 keras
 tensorflow
-sklearn.preprocessing
+scikit_learn
