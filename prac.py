@@ -138,7 +138,7 @@ for key in not_in_oil_content:
 oil_content = []
 
 if st.button('Create Recipes'):
-    start = int(time.time())
+    real_start = int(time.time())
     # rubber col에 3번째 알파벳이 Q나 E나 R인 애들 material code 저장
     for i in col:
         if i[2] == 'E' or i[2] == 'Q' or i[2]=='R':
@@ -163,18 +163,17 @@ if st.button('Create Recipes'):
         phr_range = np.linspace(list(phr)[0], list(phr)[1],stp)
         df_range.iloc[:,i] = phr_range
 
-
-
-
 # 시간 측정 (구간 1)
     # product 함수로 모든 경우의 수 리스트 생성
     initial_time = time.time()
     df_index = pd.DataFrame(columns=col)#, index=list(range(stp**len(col))))
     idx = list(product(range(stp),repeat=len(col)))
     print(f"elapsed time for process 1: {round((time.time() - initial_time),2)} sec ({round((time.time()-initial_time)/60, 2)} min)")
+    start = time.time()
+
 
 # 시간 측정 (구간 2)
-    start = time.time()
+    # start = time.time()
     # 모든 경우의 수 조합 담는 데이터프레임 생성
     # for i in idx:
         # df_index.loc[len(df_index),:] = list(i)
@@ -196,7 +195,7 @@ if st.button('Create Recipes'):
 
 # 시간 측정 (구간 3)
     # range에 있는 값들을 경우의수에 맞게 recipe로 옮기는 과정
-    start = time.time()
+    # start = time.time()
     df_recipe = pd.DataFrame(columns=col, index=df_index.index)
     # map 함수로 range에 있는 값들을 경우의수에 맞게 recipe로 옮김 
     for col in df_range.columns:
@@ -252,6 +251,8 @@ if st.button('Create Recipes'):
 
     df_recipe.to_csv("recipe.csv", index=False) # 레시피 저장
 
+
+
     # print("***run time(sec) :", int(time.time()) - start)
 
     # 모델 학습 데이터랑 같은 형태로 만들어주기 위해서, 학습데이터에 있는데 recipe에 없는 재료는 0으로 채워주는 과정
@@ -291,6 +292,8 @@ if st.button('Create Recipes'):
     json_file.close()
 
 
+
+
     # ReLU와 유사한 activation function (Swish, or SiLU)
     def _swish(x):
         return K.sigmoid(x) * x
@@ -309,12 +312,19 @@ if st.button('Create Recipes'):
     pred_g1_df = pd.DataFrame(pred_g1, columns=model_output_columns_g1)
     # pred_g1_df.to_csv("pred_g1.csv", index=False)
 
+    st.success(f'Step 1/3 completed, time taken:{round(time.time() - real_start, 2)} sec.')
+    start = time.time()
+
+
     pred_g2 = loaded_model_g2.predict(df_recipe_filled)
     pred_g2_df = pd.DataFrame(pred_g2, columns=model_output_columns_g2)
     # pred_g2_df.to_csv("pred_g2.csv", index=False)
 
     pred_tand = pred_g2 / pred_g1
     pred_tand_df = pd.DataFrame(pred_tand, columns=['tand_-30', 'tand_0', 'tand_25', 'tand_60'])
+
+    st.success(f'Step 2/3 completed, time taken:{round(time.time() - start, 2)} sec.')
+    start = time.time()
 
 ### 역설계
     ### 레퍼런스 레시피 받아서 예측값 사용
@@ -354,7 +364,7 @@ if st.button('Create Recipes'):
     df_recipe_filled_0rmv = df_recipe_filled_0rmv.loc[:, ~(df_recipe_filled_0rmv == 0).all()]
 
     # Ver 1. 기존 순위 산출 알고리즘
-    start = time.time()
+    # start = time.time()
     if len(df_G2_0.index) > len(df_tand_60.index):
         bigger_index = df_G2_0.index
         smaller_index = df_tand_60.index
@@ -391,7 +401,7 @@ if st.button('Create Recipes'):
     print(df_G1.columns)
 
     # Ver 2. 정규화 후 순위별로 점수 산출, 합산 -- 이상치에 민감
-    start = time.time()
+    # start = time.time()
     scaler = MinMaxScaler()
     df_rank_scaling = pd.DataFrame([df_tand_60, df_G2_0]).T
     G2_normalized = scaler.fit_transform(np.array(df_rank_scaling[0]).reshape(-1, 1))
@@ -460,11 +470,15 @@ if st.button('Create Recipes'):
     # target_recipe.loc[:,'rank'] = range(1,target_recipe.shape[0]+1)
     # target_recipe = target_recipe.iloc[:,:-12]
     target_recipe.to_csv('target_recipe_2_test.csv')
+    st.success(f'Step 3/3 completed, time taken:{round(time.time() - start, 2)} sec.')
+    st.success(f'All steps completed, total time taken:{round(time.time() - real_start, 2)} sec.')
 
 ### 결과 출력
     x = st.expander('Recipe Information', expanded=True)
 
     x.caption('Index 0 refers to the reference recipe')
+    x.caption('The phr values for polymers displayed incorporate both the polymer and its inherent oil content.')
+
     x.subheader('Recipe Ranking')
     x.write('Method 1. Original Algorithm')
     x.dataframe(target_recipe, width = 800)
