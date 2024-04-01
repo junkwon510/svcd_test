@@ -44,7 +44,7 @@ st.title('SVCD')
 
 st.header('Fixed phr Settings')
 # st.subheader('Fixed phr Settings')
-st.write('Specify raw materials with fixed phr values')
+st.write('Specify raw materials with fixed phr values.')
 fixed_phr_dict = {}  # Dictionary to store fixed phr values
 fixed_phr_materials = st.multiselect('Raw Material List', raw_mat_list, key='fixed_phr')
 for material in fixed_phr_materials:
@@ -53,7 +53,7 @@ for material in fixed_phr_materials:
 
 st.header('Reference Recipe Setting')
 # st.subheader('Variables')
-st.write('Set phr values for baseline recipe')
+st.write('Set phr values for baseline recipe.')
 
 reference_slider = st.multiselect('Raw Material List', raw_mat_list, key='1')
 reference_recipe = {}
@@ -65,7 +65,7 @@ print(reference_recipe)
 
 st.header('Recipe Range Setting')
 # st.subheader('Variables')
-st.write('Set phr range for each raw material')
+st.write('Set phr range for each raw material.')
 
 
 ### 범위 만족하는 여러 조합의 레시피 생성
