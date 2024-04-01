@@ -11,7 +11,11 @@ from sklearn.preprocessing import MinMaxScaler
 import pickle
 
 # 모델 학습에 사용된 데이터 열 불러오기
-model_input_columns = pd.read_csv('G1_train.csv', nrows=0).columns[:-4] # 모델에 들어가는 데이터 컬럼 (종속변수 4개 제외)
+G1_columns = pd.read_csv('G1_train_columns.csv', index_col=0)
+G2_columns = pd.read_csv('G2_train_columns.csv', index_col=0)
+
+# model_input_columns = pd.read_csv('G1_train.csv', nrows=0).columns[:-4] # 모델에 들어가는 데이터 컬럼 (종속변수 4개 제외)
+model_input_columns = G1_columns.columns[:-4]
 
 # 원료 리스트 제작
 raw_mat_list = model_input_columns.copy().tolist()
@@ -106,7 +110,10 @@ stp = st.number_input('step', step=1)
 with open('oil_content_dict.pickle', 'rb') as f:
     oil_content_dict = pickle.load(f)
 
-not_in_oil_content = (set(pd.read_csv('G1_train.csv', nrows=0).columns[:-4]) - set(oil_content_dict.keys()))
+# not_in_oil_content = (set(pd.read_csv('G1_train.csv', nrows=0).columns[:-4]) - set(oil_content_dict.keys()))
+
+not_in_oil_content = (set(G1_columns.columns[:-4]) - set(oil_content_dict.keys()))
+
 for key in not_in_oil_content:
     oil_content_dict[key] = 0
 
@@ -223,8 +230,12 @@ if st.button('Create Recipes'):
     # df_train = pd.read_csv('G1_P42X_train.csv')
     # model_input_columns = df_train.columns[:-4] # 모델에 들어가는 데이터 컬럼 (종속변수 4개 제외)
     # model_input_columns = pd.read_csv('G1_P42X_train.csv', nrows=0).columns[:-4]
-    model_output_columns_g1 = pd.read_csv('G1_train.csv', nrows=0).columns[-4:] # 아웃풋 되는 물성 컬럼
-    model_output_columns_g2 = pd.read_csv('G2_train.csv', nrows=0).columns[-4:]
+    # model_output_columns_g1 = pd.read_csv('G1_train.csv', nrows=0).columns[-4:] # 아웃풋 되는 물성 컬럼
+    # model_output_columns_g2 = pd.read_csv('G2_train.csv', nrows=0).columns[-4:]
+
+    model_output_columns_g1 = G1_columns.columns[-4:] # 아웃풋 되는 물성 컬럼
+    model_output_columns_g2 = G2_columns.columns[-4:]
+
     zeros = np.zeros([df_recipe.shape[0], len(model_input_columns)])
     df_recipe_filled = pd.DataFrame(zeros, columns = model_input_columns)
     df_recipe_filled[df_recipe.columns] = df_recipe
@@ -466,7 +477,7 @@ if st.button('Create Recipes'):
     # x.dataframe(pred_tand_df, width = 800)
 
 
-print(target_recipe.shape[0])
-print(df_rank_scaling.shape[0])
-print(df_composite_rank.shape[0])
-print(pred_g1_df.loc[0,:])
+# print(target_recipe.shape[0])
+# print(df_rank_scaling.shape[0])
+# print(df_composite_rank.shape[0])
+# print(pred_g1_df.loc[0,:])
