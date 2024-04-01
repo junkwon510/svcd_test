@@ -66,7 +66,7 @@ print(reference_recipe)
 st.header('Recipe Range Setting (Required)')
 # st.subheader('Variables')
 st.write('Set phr range for each raw material.')
-
+st.caption('If rubber contains oil, please use the phr value excluding oil content')
 
 ### 범위 만족하는 여러 조합의 레시피 생성
 raw_mat_slider = st.multiselect('Raw Material List', raw_mat_list, key='2')
@@ -92,9 +92,10 @@ rubber_col = list()
 
 # 고정값 phr 저장
 for i in fixed_phr_materials:
-    if i[2] == 'E' or i[2] == 'Q' or i[2]=='R':
-        phr_min.append(fixed_phr_dict[i])
-        phr_max.append(fixed_phr_dict[i])
+    phr_min.append(fixed_phr_dict[i])
+    phr_max.append(fixed_phr_dict[i])
+    # if i[2] == 'E' or i[2] == 'Q' or i[2]=='R':
+    #     rubber_col.append(i)
 
 # 슬라이더 생성 (키보드 입력할 수 있는 기능 추가)
 for i in raw_mat_slider:
@@ -113,12 +114,12 @@ for i in raw_mat_slider:
     #     range_val = (min_val, max_val)
 
     # min, max 같을 때 처리
-    if min_val == max_val:
-        base_rm.append(i)
-        base_phr.append(min_val)
-    else:
-        phr_min.append(min_val)
-        phr_max.append(max_val)
+    # if min_val == max_val:
+    #     base_rm.append(i)
+    #     base_phr.append(min_val)
+    # else:
+    phr_min.append(min_val)
+    phr_max.append(max_val)
 
 stp = st.number_input('step', step=1)
 st.caption('Must be greater than 1. Higher the value, wider the search range.')
@@ -149,6 +150,9 @@ if st.button('Create Recipes'):
     rubber_idx = col.index(rubber_col[-1])
 
     col.pop(rubber_idx)
+
+    print('rubber index:', rubber_idx)
+
     phr_min_tmp = phr_min.pop(rubber_idx) # phr_min_tmp: rubber 컬럼에 대한 phr lower limit
     phr_max_tmp = phr_max.pop(rubber_idx) # phr_max_tmp: rubber 컬럼에 대한 phr upper limit
 
@@ -158,6 +162,9 @@ if st.button('Create Recipes'):
     for i, phr in enumerate(list(zip(phr_min, phr_max))):
         phr_range = np.linspace(list(phr)[0], list(phr)[1],stp)
         df_range.iloc[:,i] = phr_range
+
+
+
 
 # 시간 측정 (구간 1)
     # product 함수로 모든 경우의 수 리스트 생성
@@ -455,20 +462,21 @@ if st.button('Create Recipes'):
     target_recipe.to_csv('target_recipe_2_test.csv')
 
 ### 결과 출력
-    x = st.expander('', expanded=True)
+    x = st.expander('Recipe Information', expanded=True)
 
-    x.write('###### 추천 레시피')
-    x.write('순위 산출 방식 1) 기존 알고리즘')
+    x.caption('Index 0 refers to the reference recipe')
+    x.subheader('Recipe Ranking')
+    x.write('Method 1. Original Algorithm')
     x.dataframe(target_recipe, width = 800)
 
-    x.write('순위 산출 방식 2) Minmax 정규화')
+    x.write('Method 2. Min-max Scaling')
     x.dataframe(df_rank_scaling, width = 800)
 
-    x.write('순위 산출 방식 3) 순위 합산')
+    x.write('Method 3. Composite Ranking')
     x.dataframe(df_composite_rank, width = 800)
     
-    x.write('###### 전체 레시피 및 예측 물성')
-    x.write('탐색 레시피 개수: {}'.format(df_recipe_filled_0rmv.shape[0]))
+    x.subheader('All recipes searched')
+    x.write('Number of searched recipes: {}'.format(df_recipe_filled_0rmv.shape[0]))
     df_recipe_filled_concat = pd.concat([df_recipe_filled_0rmv, pred_g1_df, pred_g2_df, pred_tand_df], axis=1)
     
     # 기존 버전
