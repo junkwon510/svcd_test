@@ -42,7 +42,7 @@ raw_mat_list = sorted(raw_mat_list, key=custom_sort_key)
 
 st.title('SVCD')
 
-st.header('Fixed phr Settings')
+st.header('Fixed Material Setting')
 # st.subheader('Fixed phr Settings')
 st.write('Specify raw materials with fixed phr values.')
 fixed_phr_dict = {}  # Dictionary to store fixed phr values
