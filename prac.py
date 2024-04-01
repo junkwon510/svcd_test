@@ -312,7 +312,7 @@ if st.button('Create Recipes'):
     pred_g1_df = pd.DataFrame(pred_g1, columns=model_output_columns_g1)
     # pred_g1_df.to_csv("pred_g1.csv", index=False)
 
-    st.success(f'Step 1/3 completed, time taken:{round(time.time() - real_start, 2)} sec.')
+    st.success(f'Step 1/3 completed, time taken: {round(time.time() - real_start, 2)} sec.')
     start = time.time()
 
 
@@ -323,7 +323,7 @@ if st.button('Create Recipes'):
     pred_tand = pred_g2 / pred_g1
     pred_tand_df = pd.DataFrame(pred_tand, columns=['tand_-30', 'tand_0', 'tand_25', 'tand_60'])
 
-    st.success(f'Step 2/3 completed, time taken:{round(time.time() - start, 2)} sec.')
+    st.success(f'Step 2/3 completed, time taken: {round(time.time() - start, 2)} sec.')
     start = time.time()
 
 ### 역설계
@@ -470,8 +470,8 @@ if st.button('Create Recipes'):
     # target_recipe.loc[:,'rank'] = range(1,target_recipe.shape[0]+1)
     # target_recipe = target_recipe.iloc[:,:-12]
     target_recipe.to_csv('target_recipe_2_test.csv')
-    st.success(f'Step 3/3 completed, time taken:{round(time.time() - start, 2)} sec.')
-    st.success(f'All steps completed, total time taken:{round(time.time() - real_start, 2)} sec.')
+    st.success(f'Step 3/3 completed, time taken: {round(time.time() - start, 2)} sec.')
+    st.success(f'All steps completed, total time taken: {round(time.time() - real_start, 2)} sec.')
 
 ### 결과 출력
     x = st.expander('Recipe Information', expanded=True)
