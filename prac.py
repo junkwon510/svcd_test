@@ -66,7 +66,7 @@ print(reference_recipe)
 st.header('Recipe Range Setting (Required)')
 # st.subheader('Variables')
 st.write('Set phr range for each raw material.')
-st.caption('If rubber contains oil, please use the phr value excluding oil content')
+st.caption('If polymer contains oil, please use the phr value excluding the oil content')
 
 ### 범위 만족하는 여러 조합의 레시피 생성
 raw_mat_slider = st.multiselect('Raw Material List', raw_mat_list, key='2')
