@@ -105,9 +105,9 @@ for i in raw_mat_slider:
     with st.expander(i, expanded=True): # i: AAE325A, AAE333A, ...
         minv, maxv = st.columns(2)
         with minv:
-            min_val = st.number_input(f"Minimum {i}", min_value=0.0, max_value=120.0, value=0.0, step=0.01, key=f"{i}_min")
+            min_val = st.number_input(f"Minimum {i}", min_value=0.0, max_value=150.0, value=0.0, step=0.01, key=f"{i}_min")
         with maxv:
-            max_val = st.number_input(f"Maximum {i}", min_value=0.0, max_value=120.0, value=120.0, step=0.01, key=f"{i}_max")
+            max_val = st.number_input(f"Maximum {i}", min_value=0.0, max_value=150.0, value=150.0, step=0.01, key=f"{i}_max")
     st.markdown("###") # 사이사이 공간 만들어주는 용도
 
     # if (min_val, max_val) != range_val:
