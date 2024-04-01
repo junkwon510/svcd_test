@@ -42,7 +42,7 @@ raw_mat_list = sorted(raw_mat_list, key=custom_sort_key)
 
 st.title('SVCD')
 
-st.header('Fixed Material Setting')
+st.header('Fixed Material Setting (Optional)')
 # st.subheader('Fixed phr Settings')
 st.write('Specify raw materials with fixed phr values.')
 fixed_phr_dict = {}  # Dictionary to store fixed phr values
@@ -51,7 +51,7 @@ for material in fixed_phr_materials:
     fixed_phr_value = st.number_input(f"{material}", min_value=0.0, max_value=200.0, key=f"fixed_{material}")
     fixed_phr_dict[material] = fixed_phr_value
 
-st.header('Reference Recipe Setting')
+st.header('Reference Recipe Setting (Optional)')
 # st.subheader('Variables')
 st.write('Set phr values for baseline recipe.')
 
@@ -63,7 +63,7 @@ for i in reference_slider:
 
 print(reference_recipe)
 
-st.header('Recipe Range Setting')
+st.header('Recipe Range Setting (Required)')
 # st.subheader('Variables')
 st.write('Set phr range for each raw material.')
 
