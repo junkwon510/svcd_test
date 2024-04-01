@@ -66,7 +66,7 @@ print(reference_recipe)
 st.header('Recipe Range Setting (Required)')
 # st.subheader('Variables')
 st.write('Please set phr range for each raw material.')
-st.caption('If polymer contains oil, please use the phr value excluding the oil content')
+st.caption('If polymer contains oil, please use the phr value excluding the oil content.')
 
 ### 범위 만족하는 여러 조합의 레시피 생성
 raw_mat_slider = st.multiselect('Raw Material List', raw_mat_list, key='2')
@@ -121,8 +121,8 @@ for i in raw_mat_slider:
     phr_min.append(min_val)
     phr_max.append(max_val)
 
-stp = st.number_input('step', step=1)
-st.caption('Must be greater than 1. Higher the value, wider the search range.')
+stp = st.number_input('Step', step=1)
+st.caption('Step must be greater than 1. Higher the value, wider the search range.')
 
 # 불러오기
 with open('oil_content_dict.pickle', 'rb') as f:
