@@ -2,5 +2,4 @@ pandas
 numpy
 streamlit
 keras
-tensorflow.keras.models
-tensorflow.keras.backend
+tensorflow
