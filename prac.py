@@ -122,7 +122,7 @@ for i in raw_mat_slider:
     phr_max.append(max_val)
 
 stp = st.number_input('Step', step=1)
-st.caption('Step must be greater than 1. Higher the value, wider the search range.')
+st.caption('"Step" must be greater than 1. Higher the value, wider the search range.')
 
 # 불러오기
 with open('oil_content_dict.pickle', 'rb') as f:
