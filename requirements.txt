@@ -3,3 +3,5 @@ numpy
 streamlit
 keras
 tensorflow
+sklearn.preprocessing
+pickle
