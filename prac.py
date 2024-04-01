@@ -42,9 +42,18 @@ raw_mat_list = sorted(raw_mat_list, key=custom_sort_key)
 
 st.title('SVCD')
 
+st.header('Fixed phr Settings')
+# st.subheader('Fixed phr Settings')
+st.write('Specify raw materials with fixed phr values')
+fixed_phr_dict = {}  # Dictionary to store fixed phr values
+fixed_phr_materials = st.multiselect('Raw Material List', raw_mat_list, key='fixed_phr')
+for material in fixed_phr_materials:
+    fixed_phr_value = st.number_input(f"{material}", min_value=0.0, max_value=200.0, key=f"fixed_{material}")
+    fixed_phr_dict[material] = fixed_phr_value
+
 st.header('Reference Recipe Setting')
-st.subheader('Variables')
-st.write('Please input the variables')
+# st.subheader('Variables')
+st.write('Set phr values for baseline recipe')
 
 reference_slider = st.multiselect('Raw Material List', raw_mat_list, key='1')
 reference_recipe = {}
@@ -55,14 +64,15 @@ for i in reference_slider:
 print(reference_recipe)
 
 st.header('Recipe Range Setting')
-st.subheader('Variables')
-st.write('Please input the variables')
+# st.subheader('Variables')
+st.write('Set phr range for each raw material')
 
 
 ### 범위 만족하는 여러 조합의 레시피 생성
 raw_mat_slider = st.multiselect('Raw Material List', raw_mat_list, key='2')
 
 col = raw_mat_slider.copy()
+col = fixed_phr_materials + col
 base_rm = list()
 base_phr = list()
 phr_min = list()
@@ -79,6 +89,12 @@ rubber_col = list()
 #     else: 
 #         phr_min.append(phr[0])
 #         phr_max.append(phr[1])
+
+# 고정값 phr 저장
+for i in fixed_phr_materials:
+    if i[2] == 'E' or i[2] == 'Q' or i[2]=='R':
+        phr_min.append(fixed_phr_dict[i])
+        phr_max.append(fixed_phr_dict[i])
 
 # 슬라이더 생성 (키보드 입력할 수 있는 기능 추가)
 for i in raw_mat_slider:
@@ -104,6 +120,8 @@ for i in raw_mat_slider:
         phr_min.append(min_val)
         phr_max.append(max_val)
 
+
+
 stp = st.number_input('step', step=1)
 
 # 불러오기
@@ -126,8 +144,6 @@ if st.button('Create Recipes'):
         if i[2] == 'E' or i[2] == 'Q' or i[2]=='R':
             rubber_col.append(i)
             oil_content.append(oil_content_dict[i])
-
-
 
     # 고무 재료 중 마지막거 잠깐 빼놓고 인덱스 저장
     rubber_tmp = rubber_col[:-1]
@@ -190,6 +206,8 @@ if st.button('Create Recipes'):
 
     df_recipe.drop_duplicates(inplace=True) # 중복 제거
 
+    print('rubber_col:', rubber_col)
+
         # 고무 재료가 하나만 있으면 100phr에 상응하는 값으로 다 채워줌
     if len(rubber_col) == 1:
         single_rubber_proportion = (100 + oil_content[0])
@@ -201,6 +219,10 @@ if st.button('Create Recipes'):
     else:
         df_recipe.insert(len(rubber_col)-1, rubber_col[-1], (100 - (df_recipe[rubber_col[:-1]]/[100+i for i in oil_content[:-1]]*100).sum(axis=1)) * (100 + oil_content[-1])/100)
 
+    # 고정값 받은대로 설정
+    for material, value in fixed_phr_dict.items():
+        if material in df_recipe.columns:
+            df_recipe[material] = value
 
     # # 범위 안에 들어오는지 확인
     #     # phr max보다 rubber phr이 큰 경우 여기서 잘려나감
@@ -288,9 +310,6 @@ if st.button('Create Recipes'):
     pred_tand = pred_g2 / pred_g1
     pred_tand_df = pd.DataFrame(pred_tand, columns=['tand_-30', 'tand_0', 'tand_25', 'tand_60'])
 
-    
-
-
 ### 역설계
     ### 레퍼런스 레시피 받아서 예측값 사용
     # 레퍼런스 안들어오면 제한 없음
@@ -327,7 +346,6 @@ if st.button('Create Recipes'):
     #
     df_recipe_filled_0rmv = df_recipe_filled.copy()
     df_recipe_filled_0rmv = df_recipe_filled_0rmv.loc[:, ~(df_recipe_filled_0rmv == 0).all()]
-
 
     # Ver 1. 기존 순위 산출 알고리즘
     start = time.time()
@@ -477,7 +495,8 @@ if st.button('Create Recipes'):
     # x.dataframe(pred_tand_df, width = 800)
 
 
-# print(target_recipe.shape[0])
-# print(df_rank_scaling.shape[0])
-# print(df_composite_rank.shape[0])
-# print(pred_g1_df.loc[0,:])
+    # print(target_recipe.shape[0])
+    # print(df_rank_scaling.shape[0])
+    # print(df_composite_rank.shape[0])
+    # print(pred_g1_df.loc[0,:])
+    # print(df_recipe.columns)
