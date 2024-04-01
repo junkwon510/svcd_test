@@ -42,60 +42,23 @@ raw_mat_list = sorted(raw_mat_list, key=custom_sort_key)
 
 st.title('SVCD')
 
-st.header('Fixed Material Setting (Optional)')
-# st.subheader('Fixed phr Settings')
-st.write('Please specify raw materials with fixed phr values.')
-fixed_phr_dict = {}  # Dictionary to store fixed phr values
-fixed_phr_materials = st.multiselect('Raw Material List', raw_mat_list, key='fixed_phr')
-for material in fixed_phr_materials:
-    fixed_phr_value = st.number_input(f"{material}", min_value=0.0, max_value=200.0, key=f"fixed_{material}")
-    fixed_phr_dict[material] = fixed_phr_value
-
-st.header('Reference Recipe Setting (Optional)')
-# st.subheader('Variables')
-st.write('Please set phr values for baseline recipe.')
-
-reference_slider = st.multiselect('Raw Material List', raw_mat_list, key='1')
-reference_recipe = {}
-for i in reference_slider:
-    value = st.number_input(i)
-    reference_recipe[i] = value
-
-print(reference_recipe)
-
 st.header('Recipe Range Setting (Required)')
 # st.subheader('Variables')
 st.write('Please set phr range for each raw material.')
 st.caption('If polymer contains oil, please use the phr value excluding the oil content.')
 
-### 범위 만족하는 여러 조합의 레시피 생성
 raw_mat_slider = st.multiselect('Raw Material List', raw_mat_list, key='2')
 
 col = raw_mat_slider.copy()
-col = fixed_phr_materials + col
+
 base_rm = list()
 base_phr = list()
 phr_min = list()
 phr_max = list()
 rubber_col = list()
 
-# # 슬라이더 생성
-# for i in range(len(raw_mat_slider)):
-
-#     phr = st.slider(raw_mat_slider[i], 0.0,120.0,(0.0,120.0), step=0.1)
-#     if phr[0] == phr[1]:
-#         base_rm.append(col.pop(col.index(raw_mat_slider[i])))
-#         base_phr.append(phr[0])
-#     else: 
-#         phr_min.append(phr[0])
-#         phr_max.append(phr[1])
-
-# 고정값 phr 저장
-for i in fixed_phr_materials:
-    phr_min.append(fixed_phr_dict[i])
-    phr_max.append(fixed_phr_dict[i])
-    # if i[2] == 'E' or i[2] == 'Q' or i[2]=='R':
-    #     rubber_col.append(i)
+stp = st.number_input('Step', step=1)
+st.caption('"Step" must be greater than 1. Higher the value, wider the search range.')
 
 # 슬라이더 생성 (키보드 입력할 수 있는 기능 추가)
 for i in raw_mat_slider:
@@ -121,8 +84,51 @@ for i in raw_mat_slider:
     phr_min.append(min_val)
     phr_max.append(max_val)
 
-stp = st.number_input('Step', step=1)
-st.caption('"Step" must be greater than 1. Higher the value, wider the search range.')
+
+st.header('Fixed Material Setting (Optional)')
+# st.subheader('Fixed phr Settings')
+st.write('Please specify raw materials with fixed phr values.')
+fixed_phr_dict = {}  # Dictionary to store fixed phr values
+fixed_phr_materials = st.multiselect('Raw Material List', raw_mat_list, key='fixed_phr')
+for material in fixed_phr_materials:
+    fixed_phr_value = st.number_input(f"{material}", min_value=0.0, max_value=200.0, key=f"fixed_{material}")
+    fixed_phr_dict[material] = fixed_phr_value
+
+col = fixed_phr_materials + col
+
+st.header('Reference Recipe Setting (Optional)')
+# st.subheader('Variables')
+st.write('Please set phr values for baseline recipe.')
+
+reference_slider = st.multiselect('Raw Material List', raw_mat_list, key='1')
+reference_recipe = {}
+for i in reference_slider:
+    value = st.number_input(i)
+    reference_recipe[i] = value
+
+
+
+# # 슬라이더 생성
+# for i in range(len(raw_mat_slider)):
+
+#     phr = st.slider(raw_mat_slider[i], 0.0,120.0,(0.0,120.0), step=0.1)
+#     if phr[0] == phr[1]:
+#         base_rm.append(col.pop(col.index(raw_mat_slider[i])))
+#         base_phr.append(phr[0])
+#     else: 
+#         phr_min.append(phr[0])
+#         phr_max.append(phr[1])
+
+# 고정값 phr 저장
+for i in fixed_phr_materials:
+    phr_min.insert(0,fixed_phr_dict[i])
+    phr_max.insert(0,fixed_phr_dict[i])
+    # if i[2] == 'E' or i[2] == 'Q' or i[2]=='R':
+    #     rubber_col.append(i)
+
+
+
+
 
 # 불러오기
 with open('oil_content_dict.pickle', 'rb') as f:
