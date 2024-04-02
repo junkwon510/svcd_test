@@ -410,7 +410,7 @@ if st.button('Create Recipes'):
     tand_normalized = 1 - scaler.fit_transform(np.array(df_rank_scaling[60]).reshape(-1, 1))
     avg_score = (G2_normalized + tand_normalized) / 2
     df_rank_scaling['Score'] = avg_score
-    df_rank_scaling = pd.concat([df_rank_scaling['Score'],df_G1, df_G2, df_tand, df_recipe_filled_0rmv], axis=1)
+    df_rank_scaling = pd.concat([df_rank_scaling['Score'], df_recipe_filled_0rmv, df_G1, df_G2, df_tand], axis=1)
     df_rank_scaling = df_rank_scaling.sort_values('Score', ascending=False)
     df_rank_scaling = df_rank_scaling.dropna()
     # 순위 추가
@@ -436,15 +436,15 @@ if st.button('Create Recipes'):
 
     # (tand값, G2값, 점수) 포함하는 데이터프레임 생성
     sorted_scores = composite_scores.sort_values()
-    df_composite_rank = pd.concat([df_G1.loc[sorted_scores.index], df_G2.loc[sorted_scores.index], 
-                                   df_tand.loc[sorted_scores.index], df_recipe_filled_0rmv], axis=1)
+    df_composite_rank = pd.concat([df_recipe_filled_0rmv, df_G1.loc[sorted_scores.index], df_G2.loc[sorted_scores.index], 
+                                   df_tand.loc[sorted_scores.index]], axis=1)
     df_composite_rank.insert(0, 'Score', sorted_scores)
     df_composite_rank = df_composite_rank.dropna()
     
     # 순위 추가
     rank_composite = df_composite_rank['Score'].rank(method='min', ascending=True)
     df_composite_rank.insert(0, 'Rank', rank_composite)
-
+    df_composite_rank = df_composite_rank.sort_values('Score', ascending=True)
 
     # pd.DataFrame({
     #     'tand_60': df_tand_60.loc[sorted_scores.index],
@@ -463,7 +463,7 @@ if st.button('Create Recipes'):
     # df['Tg_calc'] = (df['AAE325A']*0.8*(-50)+df['AAQ233A']*(-92)+48*df['AAT231A']-101*df['AAP501A'])/df[['AAE325A','AAQ233A','AAT231A','AAP501A']].sum(axis=1)
     # df['Wet Index_New'] = (df['AAD342A']**1.8)/((df['Tg_calc'].abs())**0.8)
 
-    input = pd.concat([df_G1, df_G2, df_tand, df_recipe_filled_0rmv], axis=1)
+    input = pd.concat([df_recipe_filled_0rmv, df_G1, df_G2, df_tand], axis=1)
 
     input.iloc[df_tand.index].to_csv('target_recipe_total_2_test.csv')
 
@@ -491,8 +491,8 @@ if st.button('Create Recipes'):
     x.write('Method 3. Composite Ranking')
     x.dataframe(df_composite_rank, width = 800)
     
-    x.subheader('All recipes searched')
-    x.write('Number of searched recipes: {}'.format(df_recipe_filled_0rmv.shape[0]))
+    x.subheader('All recipes')
+    x.write('{} recipes were created'.format(df_recipe_filled_0rmv.shape[0]))
     df_recipe_filled_concat = pd.concat([df_recipe_filled_0rmv, pred_g1_df, pred_g2_df, pred_tand_df], axis=1)
     
     # 기존 버전
