@@ -418,6 +418,11 @@ if st.button('Create Recipes'):
     rank_scaling = df_rank_scaling['Score'].rank(method='min', ascending=False)
     df_rank_scaling.insert(0, 'Rank', rank_scaling)
 
+    scaling_matcol = [col for col in df_rank_scaling.columns if col not in (['Rank', 'Score'] + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns))]
+    scaling_columns_sorted = sorted(scaling_matcol, key=custom_sort_key)
+    scaling_new_order = ['Rank'] + scaling_columns_sorted + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns)
+    df_rank_scaling = df_rank_scaling[scaling_new_order]
+
     print('elapsed time, Ver 2:', round((time.time() - start), 4))
 
     # Ver 3. 각 물성별 순위 자체를 기준으로 점수 산출
@@ -447,6 +452,11 @@ if st.button('Create Recipes'):
     df_composite_rank.insert(0, 'Rank', rank_composite)
     df_composite_rank = df_composite_rank.sort_values('Score', ascending=True)
 
+    composite_matcol = [col for col in df_composite_rank.columns if col not in (['Rank', 'Score'] + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns))]
+    composite_columns_sorted = sorted(composite_matcol, key=custom_sort_key)
+    composite_new_order = ['Rank'] + composite_columns_sorted + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns)
+    df_composite_rank = df_composite_rank[composite_new_order]
+
     # pd.DataFrame({
     #     'tand_60': df_tand_60.loc[sorted_scores.index],
     #     'G2_0': df_G2_0.loc[sorted_scores.index],
@@ -473,10 +483,10 @@ if st.button('Create Recipes'):
     # target_recipe.loc[:,'rank'] = range(1,target_recipe.shape[0]+1)
     # target_recipe = target_recipe.iloc[:,:-12]
 
-    # target_recipe_matcol = [col for col in target_recipe.columns if col not in list(set(['Rank'] + df_G1.columns + df_G2.columns + df_tand.columns))]
-    # target_recipe_columns_sorted = sorted(target_recipe_matcol, key=custom_sort_key)
-    # target_recipe_new_order = list(set(['Rank'] + target_recipe_columns_sorted + df_G1.columns + df_G2.columns + df_tand.columns))
-    # target_recipe = target_recipe[target_recipe_new_order]
+    target_recipe_matcol = [col for col in target_recipe.columns if col not in (['Rank'] + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns))]
+    target_recipe_columns_sorted = sorted(target_recipe_matcol, key=custom_sort_key)
+    target_recipe_new_order = ['Rank'] + target_recipe_columns_sorted + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns)
+    target_recipe = target_recipe[target_recipe_new_order]
 
 
     target_recipe.to_csv('target_recipe_2_test.csv')
