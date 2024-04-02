@@ -35,6 +35,7 @@ def custom_sort_key(code):
         sort_weight = len(custom_order_map) + 1
     # Return a tuple that includes the sort weight and then the full code to ensure unique sorting
     return (sort_weight, code)
+
 raw_mat_list = sorted(raw_mat_list, key=custom_sort_key)
 
 st.title('SVCD')
@@ -471,6 +472,13 @@ if st.button('Create Recipes'):
     target_recipe.insert(0, 'Rank', range(1,target_recipe.shape[0]+1))
     # target_recipe.loc[:,'rank'] = range(1,target_recipe.shape[0]+1)
     # target_recipe = target_recipe.iloc[:,:-12]
+
+    target_recipe_matcol = [col for col in target_recipe.columns if col not in list(set(['Rank'] + df_G1.columns + df_G2.columns + df_tand.columns))]
+    target_recipe_columns_sorted = sorted(target_recipe_matcol, key=custom_sort_key)
+    target_recipe_new_order = list(set(['Rank'] + target_recipe_columns_sorted + df_G1.columns + df_G2.columns + df_tand.columns))
+    target_recipe = target_recipe[target_recipe_new_order]
+
+
     target_recipe.to_csv('target_recipe_2_test.csv')
     st.success(f'Step 3/3 completed, time taken: {round(time.time() - start, 2)} sec.')
     st.success(f'All steps completed, total time taken: {round(time.time() - real_start, 2)} sec.')
