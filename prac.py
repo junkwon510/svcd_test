@@ -84,8 +84,8 @@ phr_min = list()
 phr_max = list()
 rubber_col = list()
 
-stp = st.number_input('Step', step=1)
 st.caption('"Step" must be greater than 1. Higher "Step" value increases the number of data points within the range.')
+stp = st.number_input('Step', step=1)
 
 # 슬라이더 생성 (키보드 입력할 수 있는 기능 추가)
 for i in raw_mat_slider:
