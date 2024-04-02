@@ -10,6 +10,13 @@ import tensorflow.keras.backend as K
 from sklearn.preprocessing import MinMaxScaler
 import pickle
 
+def reorder_columns(df):
+    matcol = [col for col in df.columns if col not in (['Rank'] + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns))]
+    columns_sorted = sorted(matcol, key=custom_sort_key)
+    new_order = ['Rank'] + columns_sorted + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns)
+    df = df[new_order]
+    return df
+
 # 모델 학습에 사용된 데이터 열 불러오기
 G1_columns = pd.read_csv('G1_train_columns.csv', index_col=0)
 G2_columns = pd.read_csv('G2_train_columns.csv', index_col=0)
@@ -418,10 +425,7 @@ if st.button('Create Recipes'):
     rank_scaling = df_rank_scaling['Score'].rank(method='min', ascending=False)
     df_rank_scaling.insert(0, 'Rank', rank_scaling)
 
-    scaling_matcol = [col for col in df_rank_scaling.columns if col not in (['Rank', 'Score'] + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns))]
-    scaling_columns_sorted = sorted(scaling_matcol, key=custom_sort_key)
-    scaling_new_order = ['Rank'] + scaling_columns_sorted + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns)
-    df_rank_scaling = df_rank_scaling[scaling_new_order]
+    df_rank_scaling = reorder_columns(df_rank_scaling)
 
     print('elapsed time, Ver 2:', round((time.time() - start), 4))
 
@@ -452,10 +456,7 @@ if st.button('Create Recipes'):
     df_composite_rank.insert(0, 'Rank', rank_composite)
     df_composite_rank = df_composite_rank.sort_values('Score', ascending=True)
 
-    composite_matcol = [col for col in df_composite_rank.columns if col not in (['Rank', 'Score'] + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns))]
-    composite_columns_sorted = sorted(composite_matcol, key=custom_sort_key)
-    composite_new_order = ['Rank'] + composite_columns_sorted + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns)
-    df_composite_rank = df_composite_rank[composite_new_order]
+    df_composite_rank = reorder_columns(df_composite_rank)
 
     # pd.DataFrame({
     #     'tand_60': df_tand_60.loc[sorted_scores.index],
@@ -483,10 +484,10 @@ if st.button('Create Recipes'):
     # target_recipe.loc[:,'rank'] = range(1,target_recipe.shape[0]+1)
     # target_recipe = target_recipe.iloc[:,:-12]
 
-    target_recipe_matcol = [col for col in target_recipe.columns if col not in (['Rank'] + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns))]
-    target_recipe_columns_sorted = sorted(target_recipe_matcol, key=custom_sort_key)
-    target_recipe_new_order = ['Rank'] + target_recipe_columns_sorted + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns)
-    target_recipe = target_recipe[target_recipe_new_order]
+
+
+    target_recipe = reorder_columns(target_recipe)
+
 
 
     target_recipe.to_csv('target_recipe_2_test.csv')
