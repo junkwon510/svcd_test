@@ -35,6 +35,17 @@ not_in_oil_content = (set(G1_columns.columns[:-4]) - set(oil_content_dict.keys()
 for key in not_in_oil_content:
     oil_content_dict[key] = 0
 
+# RM PJT SSBR 정보 참고하여 딕셔너리 수정
+for key, value in oil_content_dict.items():
+    if value == 4.9:
+        oil_content_dict[key] = 5.0
+    elif value == 36.9:
+        oil_content_dict[key] = 37.5
+    elif (value == 49.2 or value == 49.9):
+        oil_content_dict[key] = 50.0
+
+oil_content_dict['AAE525A'] = 25.0
+
 oil_content = []
 
 # 원료 리스트 제작
@@ -62,7 +73,7 @@ st.title('SVCD')
 st.header('Recipe Range Setting (Required)')
 # st.subheader('Variables')
 st.write('Please set phr range for each raw material.')
-st.caption('If polymer contains oil, please use the phr value excluding the oil content.')
+st.caption('If polymer contains oil, please use phr value excluding the oil content.')
 
 raw_mat_slider = st.multiselect('Raw Material List', raw_mat_list, key='2')
 
@@ -147,7 +158,7 @@ for i in fixed_phr_materials:
 
 if st.button('Create Recipes'):
     real_start = int(time.time())
-    # rubber col에 3번째 알파벳이 Q나 E나 R인 애들 material code 저장
+    # rubber col에 3번째 알파벳이 Q나 E나 R인 애들(폴리머) material code 저장
     for i in col:
         if i[2] == 'E' or i[2] == 'Q' or i[2]=='R':
             rubber_col.append(i)
@@ -541,5 +552,3 @@ if st.button('Create Recipes'):
     # print(df_composite_rank.shape[0])
     # print(pred_g1_df.loc[0,:])
     # print(df_recipe.columns)
-    print('oil content dictionary:', oil_content_dict['AAE329A'])
-    print('phr max:', phr_max)
