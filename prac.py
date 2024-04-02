@@ -53,7 +53,7 @@ phr_max = list()
 rubber_col = list()
 
 stp = st.number_input('Step', step=1)
-st.caption('"Step" must be greater than 1. Higher the value, wider the search range.')
+st.caption('"Step" must be greater than 1. Higher "Step" value increases the number of data points within the range.')
 
 # 슬라이더 생성 (키보드 입력할 수 있는 기능 추가)
 for i in raw_mat_slider:
@@ -478,7 +478,7 @@ if st.button('Create Recipes'):
 ### 결과 출력
     x = st.expander('Recipe Information', expanded=True)
 
-    x.caption('Index 0 refers to the reference recipe')
+    x.caption('Index 0 refers to the reference recipe.')
     x.caption('The phr values for polymers displayed incorporate both the polymer and its inherent oil content.')
 
     x.subheader('Recipe Ranking')
