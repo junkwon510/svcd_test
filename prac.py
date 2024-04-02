@@ -24,6 +24,19 @@ G2_columns = pd.read_csv('G2_train_columns.csv', index_col=0)
 # model_input_columns = pd.read_csv('G1_train.csv', nrows=0).columns[:-4] # 모델에 들어가는 데이터 컬럼 (종속변수 4개 제외)
 model_input_columns = G1_columns.columns[:-4]
 
+# Oil content dictionary 불러오기
+with open('oil_content_dict.pickle', 'rb') as f:
+    oil_content_dict = pickle.load(f)
+
+# not_in_oil_content = (set(pd.read_csv('G1_train.csv', nrows=0).columns[:-4]) - set(oil_content_dict.keys()))
+
+not_in_oil_content = (set(G1_columns.columns[:-4]) - set(oil_content_dict.keys()))
+
+for key in not_in_oil_content:
+    oil_content_dict[key] = 0
+
+oil_content = []
+
 # 원료 리스트 제작
 raw_mat_list = model_input_columns.copy().tolist()
     # 규칙에 따라 정렬
@@ -95,6 +108,8 @@ fixed_phr_dict = {}  # Dictionary to store fixed phr values
 fixed_phr_materials = st.multiselect('Raw Material List', raw_mat_list, key='fixed_phr')
 for material in fixed_phr_materials:
     fixed_phr_value = st.number_input(f"{material}", min_value=0.0, max_value=200.0, key=f"fixed_{material}")
+    if material[2] == 'E' or material[2] == 'Q' or material[2]=='R':
+        fixed_phr_value = fixed_phr_value*oil_content_dict[material]/100 + fixed_phr_value
     fixed_phr_dict[material] = fixed_phr_value
 
 col = fixed_phr_materials + col
@@ -129,22 +144,6 @@ for i in fixed_phr_materials:
     # if i[2] == 'E' or i[2] == 'Q' or i[2]=='R':
     #     rubber_col.append(i)
 
-
-
-
-
-# 불러오기
-with open('oil_content_dict.pickle', 'rb') as f:
-    oil_content_dict = pickle.load(f)
-
-# not_in_oil_content = (set(pd.read_csv('G1_train.csv', nrows=0).columns[:-4]) - set(oil_content_dict.keys()))
-
-not_in_oil_content = (set(G1_columns.columns[:-4]) - set(oil_content_dict.keys()))
-
-for key in not_in_oil_content:
-    oil_content_dict[key] = 0
-
-oil_content = []
 
 if st.button('Create Recipes'):
     real_start = int(time.time())
@@ -542,3 +541,5 @@ if st.button('Create Recipes'):
     # print(df_composite_rank.shape[0])
     # print(pred_g1_df.loc[0,:])
     # print(df_recipe.columns)
+    print('oil content dictionary:', oil_content_dict['AAE329A'])
+    print('phr max:', phr_max)
