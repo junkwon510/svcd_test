@@ -37,11 +37,7 @@ def custom_sort_key(code):
     return (sort_weight, code)
 raw_mat_list = sorted(raw_mat_list, key=custom_sort_key)
 
-
-
-
 st.title('SVCD')
-
 st.header('Recipe Range Setting (Required)')
 # st.subheader('Variables')
 st.write('Please set phr range for each raw material.')
@@ -50,7 +46,6 @@ st.caption('If polymer contains oil, please use the phr value excluding the oil 
 raw_mat_slider = st.multiselect('Raw Material List', raw_mat_list, key='2')
 
 col = raw_mat_slider.copy()
-
 base_rm = list()
 base_phr = list()
 phr_min = list()
@@ -247,7 +242,8 @@ if st.button('Create Recipes'):
     df_recipe[base_rm] = base_phr
     
     # AAD113A랑 AAD342A가 둘다 포함되어 있으면 AAD113A는 AAD342A의 8%로 설정해줌
-    if ('AAD113A' in df_recipe.columns) & ('AAD342A' in df_recipe.columns):
+    # if ('AAD113A' in df_recipe.columns) & ('AAD342A' in df_recipe.columns):
+    if 'AAD342A' in df_recipe.columns:
         df_recipe['AAD113A'] = df_recipe['AAD342A']*0.08
     
     df_recipe.drop_duplicates(inplace=True)
