@@ -10,10 +10,14 @@ import tensorflow.keras.backend as K
 from sklearn.preprocessing import MinMaxScaler
 import pickle
 
+
 def reorder_columns(df):
     matcol = [col for col in df.columns if col not in (['Rank'] + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns))]
     columns_sorted = sorted(matcol, key=custom_sort_key)
-    new_order = ['Rank'] + columns_sorted + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns)
+    if 'Rank' in df.columns:
+        new_order = ['Rank'] + columns_sorted + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns)
+    else:
+        new_order = columns_sorted + list(df_G1.columns) + list(df_G2.columns) + list(df_tand.columns)
     df = df[new_order]
     return df
 
@@ -70,7 +74,7 @@ def custom_sort_key(code):
 raw_mat_list = sorted(raw_mat_list, key=custom_sort_key)
 
 st.title('SVCD')
-st.header('Recipe Range Setting (Required)')
+st.header('Recipe Range Setting (required)')
 # st.subheader('Variables')
 st.write('Please set phr range for each raw material.')
 st.caption('If polymer contains oil, please use phr value excluding the oil content.')
@@ -118,7 +122,7 @@ for i in raw_mat_slider:
     phr_max.append(max_val)
 
 
-st.header('Fixed Material Setting (Optional)')
+st.header('Fixed Material Setting (optional)')
 # st.subheader('Fixed phr Settings')
 st.write('Please specify raw materials with fixed phr values.')
 fixed_phr_dict = {}  # Dictionary to store fixed phr values
@@ -131,7 +135,7 @@ for material in fixed_phr_materials:
 
 col = fixed_phr_materials + col
 
-st.header('Reference Recipe Setting (Optional)')
+st.header('Reference Recipe Setting (optional)')
 # st.subheader('Variables')
 st.write('Please set phr values for baseline recipe.')
 
@@ -299,6 +303,9 @@ if st.button('Create Recipes'):
     df_reference[list(reference_recipe.keys())] = list(reference_recipe.values())
     df_recipe_filled = pd.concat([df_reference, df_recipe_filled], ignore_index=True)
 
+    print('reference:', df_reference)
+    print('recipe:', df_recipe_filled)
+
     # df_train_g2 = pd.read_csv('G2_train.csv')
     # model_input_columns_g2 = df_train_g2.columns[:-4] # 모델에 들어가는 데이터 컬럼 (종속변수 4개 제외)
     # model_output_columns_g2 = df_train_g2.columns[-4:] # 아웃풋 되는 물성 컬럼
@@ -352,6 +359,7 @@ if st.button('Create Recipes'):
     st.success(f'Step 2/3 completed, time taken: {round(time.time() - start, 2)} sec.')
     start = time.time()
 
+    print('pred_tand:', pred_tand_df.loc[0,:])
 ### 역설계
     ### 레퍼런스 레시피 받아서 예측값 사용
     # 레퍼런스 안들어오면 제한 없음
@@ -398,7 +406,7 @@ if st.button('Create Recipes'):
         bigger_index = df_tand_60.index
         smaller_index = df_G2_0.index
 
-    idx = list()
+    idx = []
     num = 0
     for i in range(len(bigger_index)):
         if bigger_index[i] in smaller_index[:i+1]:
@@ -418,8 +426,9 @@ if st.button('Create Recipes'):
                         # print(f'smaller_index[list(smaller_index).index(bigger_index[i])]: {smaller_index[list(smaller_index).index(bigger_index[i])]}')
                         idx.append(bigger_index[j])
                 break
+    idx.append(0) # 레퍼런스 레시피 추가
     # print(std)
-    # print(f'idx: {idx}')
+    print(f'idx: {idx}')
     # print(len(idx))
     # print(len(set(idx)))
     print('elapsed time, Ver 1:', round((time.time() - start), 4))
@@ -497,14 +506,11 @@ if st.button('Create Recipes'):
 
     target_recipe = input.iloc[idx]
     target_recipe.insert(0, 'Rank', range(1,target_recipe.shape[0]+1))
+    print('target recipe:', target_recipe)
     # target_recipe.loc[:,'rank'] = range(1,target_recipe.shape[0]+1)
     # target_recipe = target_recipe.iloc[:,:-12]
 
-
-
     target_recipe = reorder_columns(target_recipe)
-
-
 
     target_recipe.to_csv('target_recipe_2_test.csv')
     st.success(f'Step 3/3 completed, time taken: {round(time.time() - start, 2)} sec.')
@@ -529,7 +535,8 @@ if st.button('Create Recipes'):
     x.subheader('All recipes')
     x.write('{} recipes were created'.format(df_recipe_filled_0rmv.shape[0]))
     df_recipe_filled_concat = pd.concat([df_recipe_filled_0rmv, pred_g1_df, pred_g2_df, pred_tand_df], axis=1)
-    
+    df_recipe_filled_concat = reorder_columns(df_recipe_filled_concat)
+
     # 기존 버전
     x.dataframe(df_recipe_filled_concat, width = 800)
     
@@ -558,3 +565,4 @@ if st.button('Create Recipes'):
     # print(df_composite_rank.shape[0])
     # print(pred_g1_df.loc[0,:])
     # print(df_recipe.columns)
+    print('reference:', df_recipe_filled_concat.loc[0,:])
