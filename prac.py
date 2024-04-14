@@ -93,9 +93,6 @@ rubber_col = list()
 fixed_rubber_col = list()
 raw_mat_rubber_col = list()
 
-st.caption('"Step" must be greater than 1. Higher "Step" value increases the number of data points within the range.')
-stp = st.number_input('Step', step=1)
-
 # 슬라이더 생성 (키보드 입력할 수 있는 기능 추가)
 for i in raw_mat_slider:
     # 범위 초기화
@@ -126,6 +123,8 @@ for i in raw_mat_slider:
     phr_min.append(min_val)
     phr_max.append(max_val)
 
+st.caption('"Step" must be greater than 1. Higher "Step" value increases the number of data points within the range.')
+stp = st.number_input('Step', step=1)
 
 st.header('Fixed Material Setting (optional)')
 # st.subheader('Fixed phr Settings')
@@ -150,25 +149,12 @@ st.write('Please set phr values for baseline recipe.')
 #compound_slider = st.multiselect('Compound List', cpd_list, key='3')
 ###
 
-
 reference_slider = st.multiselect('Raw Material List', raw_mat_list, key='1')
 reference_recipe = {}
 for i in reference_slider:
     value = st.number_input(i)
     reference_recipe[i] = value
 
-
-
-# # 슬라이더 생성
-# for i in range(len(raw_mat_slider)):
-
-#     phr = st.slider(raw_mat_slider[i], 0.0,120.0,(0.0,120.0), step=0.1)
-#     if phr[0] == phr[1]:
-#         base_rm.append(col.pop(col.index(raw_mat_slider[i])))
-#         base_phr.append(phr[0])
-#     else: 
-#         phr_min.append(phr[0])
-#         phr_max.append(phr[1])
 
 phr_min_rawmat = phr_min.copy()
 phr_max_rawmat = phr_max.copy()
@@ -309,7 +295,7 @@ if st.button('Create Recipes'):
         for i in fixed_rubber_col:
             df_recipe[i] = fixed_phr_dict[i]
 
-    print('df_recipe!!!', df_recipe)
+
     # 고무 재료가 하나만 있으면 100phr에 상응하는 값으로 다 채워줌
     if len(rubber_col) == 1:
         single_rubber_proportion = (100 + oil_content[0])
@@ -321,14 +307,14 @@ if st.button('Create Recipes'):
     else:
         if raw_mat_rubber_col!=[]:
             df_recipe.insert(len(rubber_col)-1, rubber_col[-1], (100 - (df_recipe[rubber_col[:-1]]/[100+i for i in oil_content[:-1]]*100).sum(axis=1)) * (100 + oil_content[-1])/100)
-    print('df_recipe!!!!!', df_recipe)
+    
 
 
     # 고정값 받은대로 설정
     for material, value in fixed_phr_dict.items():
         if material in df_recipe.columns:
             df_recipe[material] = value
-    print('df_recipe!!!!!!!',df_recipe)
+    
 
     # # 범위 안에 들어오는지 확인
     #     # phr max보다 rubber phr이 큰 경우 여기서 잘려나감
@@ -336,12 +322,7 @@ if st.button('Create Recipes'):
     #     # 그래서 하나만 있을때는 일단 확인안하도록 해놓음 (검토해서 수정해야할듯)
 
 
-    print('phrminmaxtmp', phr_min_tmp, phr_max_tmp)
-
     
-    
-    print('df_recipe!!!!!!!!!!!!',df_recipe)
-    ##### 여기서 오류 발생 (고무 0됨)
 
 
     # df_recipe column중에 rubber_col에 해당하는 애들 값이 음수면 해당 행 제거
@@ -358,10 +339,10 @@ if st.button('Create Recipes'):
     
     df_recipe.drop_duplicates(inplace=True)
     df_recipe.reset_index(inplace=True, drop=True)
-    print(df_recipe.shape)
+    
     df_recipe = df_recipe.astype(float)
 
-    df_recipe.to_csv("recipe.csv", index=False) # 레시피 저장
+    # df_recipe.to_csv("recipe.csv", index=False) # 레시피 저장
 
 
 
@@ -385,8 +366,6 @@ if st.button('Create Recipes'):
     df_reference[list(reference_recipe.keys())] = list(reference_recipe.values())
     df_recipe_filled = pd.concat([df_reference, df_recipe_filled], ignore_index=True)
 
-    print('reference:', df_reference)
-    print('recipe:', df_recipe_filled)
 
     # df_train_g2 = pd.read_csv('G2_train.csv')
     # model_input_columns_g2 = df_train_g2.columns[:-4] # 모델에 들어가는 데이터 컬럼 (종속변수 4개 제외)
@@ -441,7 +420,7 @@ if st.button('Create Recipes'):
     st.success(f'Step 2/3 completed, time taken: {round(time.time() - start, 2)} sec.')
     start = time.time()
 
-    print('pred_tand:', pred_tand_df.loc[0,:])
+
 ### 역설계
     ### 레퍼런스 레시피 받아서 예측값 사용
     # 레퍼런스 안들어오면 제한 없음
@@ -452,9 +431,7 @@ if st.button('Create Recipes'):
     else:
         G2_0_limit = pred_g2_df.loc[0,'G2_0'] # 0'C g2 최소값 설정
         tand_60_limit = pred_tand_df.loc[0,'tand_60'] # 60'C tand 최대값 설정
-    print(df_reference)
-    print('G2 lim:', G2_0_limit)
-    print('tand lim:', tand_60_limit)
+
 
     df_G1 = pred_g1_df.copy()
     df_G2 = pred_g2_df.copy()
@@ -510,12 +487,12 @@ if st.button('Create Recipes'):
                 break
     idx.append(0) # 레퍼런스 레시피 추가
     # print(std)
-    print(f'idx: {idx}')
+    # print(f'idx: {idx}')
     # print(len(idx))
     # print(len(set(idx)))
-    print('elapsed time, Ver 1:', round((time.time() - start), 4))
+    # print('elapsed time, Ver 1:', round((time.time() - start), 4))
 
-    print(df_G1.columns)
+    # print(df_G1.columns)
 
     # Ver 2. 정규화 후 순위별로 점수 산출, 합산 -- 이상치에 민감
     # start = time.time()
@@ -534,7 +511,7 @@ if st.button('Create Recipes'):
 
     df_rank_scaling = reorder_columns(df_rank_scaling)
 
-    print('elapsed time, Ver 2:', round((time.time() - start), 4))
+    # print('elapsed time, Ver 2:', round((time.time() - start), 4))
 
     # Ver 3. 각 물성별 순위 자체를 기준으로 점수 산출
     # 교집합 탐색
@@ -588,7 +565,7 @@ if st.button('Create Recipes'):
 
     target_recipe = input.iloc[idx]
     target_recipe.insert(0, 'Rank', range(1,target_recipe.shape[0]+1))
-    print('target recipe:', target_recipe)
+    # print('target recipe:', target_recipe)
     # target_recipe.loc[:,'rank'] = range(1,target_recipe.shape[0]+1)
     # target_recipe = target_recipe.iloc[:,:-12]
 
@@ -647,4 +624,4 @@ if st.button('Create Recipes'):
     # print(df_composite_rank.shape[0])
     # print(pred_g1_df.loc[0,:])
     # print(df_recipe.columns)
-    print('reference:', df_recipe_filled_concat.loc[0,:])
+    # print('reference:', df_recipe_filled_concat.loc[0,:])
