@@ -124,7 +124,10 @@ for i in raw_mat_slider:
     phr_max.append(max_val)
 
 st.caption('"Step" must be greater than 1. Higher "Step" value increases the number of data points within the range.')
-stp = st.number_input('Step', step=1)
+stp = st.number_input('Step', min_value = 0, step=1)
+
+if stp>0 and stp**((len(raw_mat_col)-1))>=1000000:
+    st.warning('Number of recipes created may be too large.')
 
 st.header('Fixed Material Setting (optional)')
 # st.subheader('Fixed phr Settings')
@@ -168,7 +171,9 @@ for i in fixed_col:
 
 
 if st.button('Create Recipes'):
+    st.success('Initiate recipe creation.')
     real_start = int(time.time())
+    start = int(time.time())
     # rubber col에 3번째 알파벳이 Q나 E나 R인 애들(폴리머) material code 저장
     for i in fixed_col:
         if i[2] == 'E' or i[2] == 'Q' or i[2]=='R':
@@ -212,23 +217,11 @@ if st.button('Create Recipes'):
         phr_max_rawmat = [max_phr_for_variable_rubbers if mat[2] in ['E', 'Q', 'R'] 
                           else max_val for mat, max_val in zip(raw_mat_col_filtered, phr_max_rawmat)]
 
-
-    print('#################!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    print('rawmatcolfiltered:', raw_mat_col_filtered)
-    print('rubber_exclueded:', rubber_excluded)
-    print('rubberidx:', rubber_idx)
-    print('phrminrawmat:', phr_min_rawmat)
-    print('phrmaxrawmat:', phr_max_rawmat)
-
-
     df_range = pd.DataFrame(columns=raw_mat_col_filtered)
     for i, phr in enumerate(list(zip(phr_min_rawmat, phr_max_rawmat))):
             phr_range = np.linspace(list(phr)[0], list(phr)[1],stp)
             df_range.iloc[:,i] = phr_range
 
-    print('#### df_range ####')
-    print(df_range)
-    print()
 
 # 시간 측정 (구간 1)
     # product 함수로 모든 경우의 수 리스트 생성
@@ -243,10 +236,6 @@ if st.button('Create Recipes'):
 
     print(f"elapsed time for process 2: {(round((time.time() - start),2))} sec ({round((time.time()-start)/60, 2)} min)")
 
-    print('df_index:', df_index)
-    print('df_range:', df_range)
-
-
 # 시간 측정 (구간 3)
     # range에 있는 값들을 경우의 수에 맞게 recipe로 옮기는 과정
     # start = time.time()
@@ -259,9 +248,6 @@ if st.button('Create Recipes'):
     else:
         df_recipe = pd.DataFrame(columns=col, index=df_index.index)
     # map 함수로 range에 있는 값들을 경우의수에 맞게 recipe로 옮김 
-
-    print('########################################')
-    print('raw_mat_col_filtered:', raw_mat_col_filtered)
 
     for col in raw_mat_col_filtered:
         df_recipe[col] = df_index[col].map(df_range[col])
@@ -276,19 +262,7 @@ if st.button('Create Recipes'):
 
     df_recipe.drop_duplicates(inplace=True) # 중복 제거
 
-    print('rubber_col:', rubber_col)
-
-    print('##### df_recipe')
-    print('AAE182A' in df_recipe.columns)
-    print(df_recipe)
-    print('#####')
-    
-
     rubber_col = fixed_rubber_col + raw_mat_rubber_col
-    print(rubber_col)
-
-
-
 
     # fixed가 들어왔으면, 지금 df_recipe에서 fixed rubber이 Nan으로 되어있어서 채워줌
     if fixed_rubber_col != []:
@@ -343,8 +317,6 @@ if st.button('Create Recipes'):
     df_recipe = df_recipe.astype(float)
 
     # df_recipe.to_csv("recipe.csv", index=False) # 레시피 저장
-
-
 
     # print("***run time(sec) :", int(time.time()) - start)
 
@@ -406,7 +378,16 @@ if st.button('Create Recipes'):
     pred_g1_df = pd.DataFrame(pred_g1, columns=model_output_columns_g1)
     # pred_g1_df.to_csv("pred_g1.csv", index=False)
 
-    st.success(f'Step 1/3 completed, time taken: {round(time.time() - real_start, 2)} sec.')
+    elapsted_time = time.time() - start
+    hours, remainder = divmod(elapsted_time,3600)
+    minutes, seconds = divmod(remainder, 60)
+    time_str = ""
+    if hours > 0:
+        time_str += f"{int(hours)} hr "
+    if minutes > 0:
+        time_str += f"{int(minutes)} min "
+    time_str += f"{round(seconds, 2)} sec"
+    st.success(f'Step 1/3 completed. Time taken: {time_str}')
     start = time.time()
 
 
@@ -417,7 +398,16 @@ if st.button('Create Recipes'):
     pred_tand = pred_g2 / pred_g1
     pred_tand_df = pd.DataFrame(pred_tand, columns=['tand_-30', 'tand_0', 'tand_25', 'tand_60'])
 
-    st.success(f'Step 2/3 completed, time taken: {round(time.time() - start, 2)} sec.')
+    elapsted_time = time.time() - start
+    hours, remainder = divmod(elapsted_time,3600)
+    minutes, seconds = divmod(remainder, 60)
+    time_str = ""
+    if hours > 0:
+        time_str += f"{int(hours)} hr "
+    if minutes > 0:
+        time_str += f"{int(minutes)} min "
+    time_str += f"{round(seconds, 2)} sec"
+    st.success(f'Step 2/3 completed. Time taken: {time_str}')
     start = time.time()
 
 
@@ -553,7 +543,7 @@ if st.button('Create Recipes'):
     df_G1.columns = ['G1_-30','G1_0','G1_25','G1_60']
     df_G2.columns = ['G2_-30','G2_0','G2_25','G2_60']
     df_tand.columns = ['tand_-30','tand_0','tand_25','tand_60']
-    df = pd.read_csv(f'{test_input_file_name}') # recipe.csv
+    # df = pd.read_csv(f'{test_input_file_name}') # recipe.csv
     # df['Plasticizer']=df[['AAP501A','AAT231A']].sum(axis=1)+df['AAE325A']*0.2
     # df['Pla_Sil_Ratio'] = df['AAD342A']/df['Plasticizer']
     # df['Tg_calc'] = (df['AAE325A']*0.8*(-50)+df['AAQ233A']*(-92)+48*df['AAT231A']-101*df['AAP501A'])/df[['AAE325A','AAQ233A','AAT231A','AAP501A']].sum(axis=1)
@@ -561,7 +551,7 @@ if st.button('Create Recipes'):
 
     input = pd.concat([df_recipe_filled_0rmv, df_G1, df_G2, df_tand], axis=1)
 
-    input.iloc[df_tand.index].to_csv('target_recipe_total_2_test.csv')
+    # input.iloc[df_tand.index].to_csv('target_recipe_total_2_test.csv')
 
     target_recipe = input.iloc[idx]
     target_recipe.insert(0, 'Rank', range(1,target_recipe.shape[0]+1))
@@ -571,15 +561,43 @@ if st.button('Create Recipes'):
 
     target_recipe = reorder_columns(target_recipe)
 
-    target_recipe.to_csv('target_recipe_2_test.csv')
-    st.success(f'Step 3/3 completed, time taken: {round(time.time() - start, 2)} sec.')
-    st.success(f'All steps completed, total time taken: {round(time.time() - real_start, 2)} sec.')
+    # target_recipe.to_csv('target_recipe_2_test.csv')
+
+    elapsted_time = time.time() - start
+    hours, remainder = divmod(elapsted_time,3600)
+    minutes, seconds = divmod(remainder, 60)
+    time_str = ""
+    if hours > 0:
+        time_str += f"{int(hours)} hr "
+    if minutes > 0:
+        time_str += f"{int(minutes)} min "
+    time_str += f"{round(seconds, 2)} sec"
+
+    st.success(f'Step 3/3 completed. Time taken: {time_str}')
+
+    total_elapsted_time = time.time() - real_start
+    hours, remainder = divmod(total_elapsted_time,3600)
+    minutes, seconds = divmod(remainder, 60)
+    time_str = ""
+    if hours > 0:
+        time_str += f"{int(hours)} hr "
+    if minutes > 0:
+        time_str += f"{int(minutes)} min "
+    time_str += f"{round(seconds, 2)} sec"
+
+    st.success(f'Recipe creation complete. Total time taken: {time_str}')
 
 ### 결과 출력
     x = st.expander('Recipe Information', expanded=True)
 
     x.caption('Index 0 refers to the reference recipe.')
     x.caption('The phr values for polymers displayed incorporate both the polymer and its inherent oil content.')
+
+    x.subheader('All recipes')
+    x.write('{} recipes were created'.format(df_recipe_filled_0rmv.shape[0]))
+    df_recipe_filled_concat = pd.concat([df_recipe_filled_0rmv, pred_g1_df, pred_g2_df, pred_tand_df], axis=1)
+    df_recipe_filled_concat = reorder_columns(df_recipe_filled_concat)
+    x.dataframe(df_recipe_filled_concat, width = 800)
 
     x.subheader('Recipe Ranking')
     x.write('Method 1. Original Algorithm')
@@ -591,13 +609,10 @@ if st.button('Create Recipes'):
     x.write('Method 3. Composite Ranking')
     x.dataframe(df_composite_rank, width = 800)
     
-    x.subheader('All recipes')
-    x.write('{} recipes were created'.format(df_recipe_filled_0rmv.shape[0]))
-    df_recipe_filled_concat = pd.concat([df_recipe_filled_0rmv, pred_g1_df, pred_g2_df, pred_tand_df], axis=1)
-    df_recipe_filled_concat = reorder_columns(df_recipe_filled_concat)
+
 
     # 기존 버전
-    x.dataframe(df_recipe_filled_concat, width = 800)
+
     
     # # 레퍼런스 색칠 버전 (오래 걸림)
     # def highlight_first_row(s):
