@@ -126,7 +126,7 @@ for i in raw_mat_slider:
 st.caption('"Step" must be greater than 1. Higher "Step" value increases the number of data points within the range.')
 stp = st.number_input('Step', min_value = 0, step=1)
 
-if stp>0 and stp**((len(raw_mat_col)-1))>=1000000:
+if stp>0 and stp**((len(raw_mat_col)-1))>=200000:
     st.warning('Number of recipes created may be too large.')
 
 st.header('Fixed Material Setting (optional)')
