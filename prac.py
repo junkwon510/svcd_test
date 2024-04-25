@@ -112,25 +112,14 @@ with tab_1:
     # 슬라이더 생성 (키보드 입력할 수 있는 기능 추가)
     for i in raw_mat_slider:
         # 범위 초기화
-        # range_val = st.slider(f"{i} Range", min_value=0.0, max_value=160.0, value=(0.0, 160.0), step=0.1, key=f"{i}_range")
+        # range_val = st.slider(f"{i} Range", min_value=0.0, max_value=120.0, value=(0.0, 120.0), step=0.1, key=f"{i}_range")
         
         with st.expander(i, expanded=True): # i: AAE325A, AAE333A, ...
             minv, maxv = st.columns(2)
-            # if i[2]== 'D':
-            #     with minv:
-            #         min_val = st.number_input(f"Minimum {i}", min_value=0.0, max_value=160.0, value=0.0, step=0.01, key=f"{i}_min")
-            #     with maxv:
-            #         max_val = st.number_input(f"Maximum {i}", min_value=0.0, max_value=160.0, value=160.0, step=0.01, key=f"{i}_max")
-            # else:
-            #     with minv:
-            #         min_val = st.number_input(f"Minimum {i}", min_value=0.0, max_value=120.0, value=0.0, step=0.01, key=f"{i}_min")
-            #     with maxv:
-            #         max_val = st.number_input(f"Maximum {i}", min_value=0.0, max_value=120.0, value=120.0, step=0.01, key=f"{i}_max")
             with minv:
                 min_val = st.number_input(f"Minimum {i}", min_value=0.0, max_value=160.0, value=0.0, step=0.01, key=f"{i}_min")
             with maxv:
                 max_val = st.number_input(f"Maximum {i}", min_value=0.0, max_value=160.0, value=160.0, step=0.01, key=f"{i}_max")
-                
         st.markdown("###") # 사이사이 공간 만들어주는 용도
 
         # Range Setting에서 min, max 같을 때 메시지 띄워주기
@@ -202,6 +191,7 @@ with tab_1:
 
 
     if st.button('Create Recipes'):
+        print(time.localtime())
         st.success('Initiate recipe creation.')
         real_start = int(time.time())
         start = int(time.time())
@@ -259,13 +249,13 @@ with tab_1:
         initial_time = time.time()
 
         idx = list(product(range(stp),repeat=len(raw_mat_col)))
-        print(f"elapsed time for process 1: {round((time.time() - initial_time),2)} sec ({round((time.time()-initial_time)/60, 2)} min)")
+        # print(f"elapsed time for process 1: {round((time.time() - initial_time),2)} sec ({round((time.time()-initial_time)/60, 2)} min)")
         start = time.time()
 
         df_index = pd.DataFrame(idx, columns = raw_mat_col)
         
 
-        print(f"elapsed time for process 2: {(round((time.time() - start),2))} sec ({round((time.time()-start)/60, 2)} min)")
+        # print(f"elapsed time for process 2: {(round((time.time() - start),2))} sec ({round((time.time()-start)/60, 2)} min)")
 
     # 시간 측정 (구간 3)
         # range에 있는 값들을 경우의 수에 맞게 recipe로 옮기는 과정
@@ -288,8 +278,8 @@ with tab_1:
         #         df_recipe.iloc[i,k] = df_range.iloc[df_index.iloc[i,k],k]
                 # print(f'df_index.index: {df_index.shape[0]}, df_range.columns: {df_range.shape[1]}')
                 # print(i,k)
-        print(f"elapsed time for process 3: {(round((time.time() - start),2))} sec ({round((time.time()-start)/60, 2)} min)")
-        print(f"total time taken: {round(time.time()-initial_time, 2)} sec ({round((time.time()-initial_time)/60, 2)} min)")
+        # print(f"elapsed time for process 3: {(round((time.time() - start),2))} sec ({round((time.time()-start)/60, 2)} min)")
+        # print(f"total time taken: {round(time.time()-initial_time, 2)} sec ({round((time.time()-initial_time)/60, 2)} min)")
 
         df_recipe.drop_duplicates(inplace=True) # 중복 제거
 
